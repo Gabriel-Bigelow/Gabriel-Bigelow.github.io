@@ -22,7 +22,7 @@ const openFourSquare = () => {
         fourSquareButton.scrollIntoView();
     }, 500);
 
-    fourSquarePreviewVideo.src="images/projects/four-square/demo2.mp4"
+    fourSquarePreviewVideo.src="images/Projects/four-square/demo2.mp4"
 }
 
 const closeFourSquare = () => {
@@ -34,7 +34,7 @@ const closeFourSquare = () => {
         fourSquareInfo.style.display= "none";
         fourSquareVideo.style.display= "none";
     }, 500);
-    fourSquarePreviewVideo.src="images/projects/four-square/demo.mp4";
+    fourSquarePreviewVideo.src="images/Projects/four-square/demo.mp4";
     fourSquarePreviewVideo.style.display="none";
     fourSquarePreview.style.display="block";
     fourSquareClicked=false;
