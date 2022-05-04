@@ -1,0 +1,201 @@
+    <HTML>
+        <head>
+            <title>Gabriel Bigelow's Portfolio</title>
+            <link rel="stylesheet" type="text/css" href="styles.css">
+        </head>
+
+        <body>
+            <div id="landing-container">
+                <img id="background-image" src="images/background.jpg">
+                <nav id="navigation-bar">
+                    <span id="back-to-top-link-container"><a class="button" id="back-to-top-link" href="#landing-container"></a></span>
+                    <ul>
+                        <a class="button" id="about-me-link" href="#about-me-nav">About Me</a>
+                        <a class="button" id="projects-link" href="#projects-nav">Projects</a>
+                        <a class="button" id="skills-link" href="#skills-container">Skills</a>
+                        <a class="button" id="contact-link" href="#contact-container">Contact</a>
+                    </ul>
+                </nav>
+                <div id="landing-container-text">
+                    <p class="title">Gabriel Bigelow</p>
+                    <p class="subtitle">I am a full stack developer in Temperance, Michigan.</p>
+                </div>
+                <script src="scripts/navigation-bar-scroll.js"></script>
+                <script src="scripts/navigation-bar-start.js"></script>                
+            </div>
+
+
+
+            <div class="section-container" id="about-me-container">
+                <div id="about-me-nav"></div>
+                <img class="about-me-backgrounds" id="about-me-background-4" src="images/about-me-4.jpg">
+                <img class="about-me-backgrounds" id="about-me-background-3" src="images/about-me-3.jpg">
+                <img class="about-me-backgrounds" id="about-me-background-2"src="images/about-me-2.jpg">
+                <img class="about-me-backgrounds" id="about-me-background-1" src="images/about-me-1.jpg">
+                <div id="about-me-text-container">
+                    
+                    <div class="section-header-container" id="about-me-header-container">
+                        <h2 class="subtitle">About Me</h2>
+                    </div>
+                    <p class="section-body-container" id="about-me-body">Hello, my name is Gabriel. I am a full-stack development student. My goal is to complete my courses while working with other programmers to improve my skills and secure a job in the computer programming field.
+                        <br><br>I began my coding journey in July 2021, and have completed several projects within my coursework while also working on my own independent projects.
+                        <br><br>In my free time, I enjoy playing videogames, listening to music, and coding.
+                    </p>
+                </div>
+            </div>
+            
+
+
+            <p id="projects-nav"></p>
+            <h2 class="subtitle" id="projects-title">Projects</h2>
+            <p id="projects-exit">Show all projects</p>
+            <div id="projects">
+                <div class="project-button-container" id="four-square-button-container">
+                    <p class="project-title">Four Square</p>
+                    <div id="four-square-button-images">
+                        <img class="project-preview" id= "four-square-preview" src="images/Projects/four-square/demo.jpg">
+                        <video id="four-square-preview-video" src="images/Projects/four-square/demo.mp4" muted autoplay loop></video>
+                    </div>
+                    <p class="project-button-info" id="four-square-button-info"><b>Four Square</b> is a multiplayer game based on the 
+                        playground game of the same name.</p>
+                        <div class="project-info" id="four-square-info">                   
+                            <p>4 players are each assigned to their own square, adjacent to the other 3 players' respective square. 
+                            The player in the first square hits, or "serves", the ball into an opposing player's square, where 
+                            the ball must first bounce a single time in the opposing player's square before that player can then hit, 
+                            or "return", the ball into an opposing player's square. </p>
+                            <p>Players in the arena are free to move anywhere on the screen. The ball is constrained to the arena 
+                                by walls that the players can also bounce the ball off of. To reach a fast moving ball 
+                                or to deliver more power on a shot, players can use the sprint ability that drains during use and refills 
+                                when not used after a short period of time. </p>
+                            <ul>A player is <strong>out</strong> if they: 
+                                <li class = "four-square-list">hit the ball before it has bounced in their square.</li>
+                                <li class = "four-square-list">fail to return the ball before it bounces a second time.</li>
+                                <li class = "four-square-list">hit the ball more than once when serving or returning a hit.</li>
+                                <li class = "four-square-list">return the ball, but it does not land in, or on the edge of an opposing player's square.</li>
+                            </ul>
+                            <p>When a player is out, they are removed from their specific square and sent to the 4th square, and each 
+                                player behind them rotates into the square that is their current square minus 1. (If more than 4 players, 
+                                the next player in the queue is removed from the queue and rotated into the 4th square, and the "out" player 
+                                is now last in the queue.)</p>
+                            <div id="four-square-controls-container">
+                                <ul>Controls:
+                                    <li class = "four-square-list">Player 1: (movement) arrow keys, (sprint) shift key</li>
+                                    <li class = "four-square-list">Player 2: (movement) WASD keys, (sprint) C key</li>
+                                    <li class = "four-square-list">Player 3: (movement) TFGH keys, (sprint) N key</li>
+                                    <li class = "four-square-list">Player 4: (movement) IJKL keys, (sprint) . key</li>
+                                </ul>
+                            </div>
+                            <p class="project-video" id="four-square-video"><a href="FourSquare-0.7-demo/FourSquare 0.7 Copy.html">Click here to play a work-in-progress build (best in fullscreen)</a>
+                                    <br><br>Or watch the video below!
+                                    <br><br><iframe width="840" height="472" src="https://www.youtube.com/embed/ptIK_LHJacw?" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </p>
+                        </div>
+                </div>
+                <script src="scripts/projects/Four Square/showFourSquare.js"></script>
+
+                <div class="project-button-container" id="fortune-teller-button-container">
+                    <p class="project-title">Fortune Teller</p>
+                    <div id="fortune-teller-button-images">
+                        <img class="project-preview" id= "fortune-teller-preview" src="images/Projects/fortune-teller/crystal ball.jpg">
+                    </div>
+                    <p class="project-button-info" id="fortune-teller-button-info"><b>Fortune Teller</b> is a program that gives you a morning, afternoon, and night fortune and luck approximation based on random 
+                        number generation.</p>
+                    <div class="project-info" id="fortune-teller-info">
+                        <p id="fortune-teller-button-wrap"><button id='fortune-teller-button'>Press for fortune</button></p>
+                                <div id="fortune-teller-program">
+                                    <p id="morning-message"></p>
+                                    <p id="afternoon-message"></p>
+                                    <p id="night-message"></p>
+                                    <p id="average-message"></p>
+                                </div>
+                                <div class="github-link"><a class="github-link" href="https://github.com/Icy-Rex/mixed-messages-project">Want more info? Link to github repository for this project</a></div>
+                                <br> <br>
+                                <script src="Projects/mixed-messages-project/mixed-messages.js"></script>
+                    </div>
+                </div>
+                <script src="scripts/projects/Fortune Teller/showFortuneTeller.js"></script>
+
+                <div class="project-button-container" id="quote-api-button-container">
+                    <p class="project-title">Quote API</p>
+                    <div id="quote-api-button-images">
+                        <img class="project-preview" id="quote-api-preview" src="images/Projects/quote-api/api.png">
+                    </div>
+                    <p class="project-button-info" id="quote-api-button-info"><b>Quote API</b> is a simple demonstration of the understanding of full stack development.</p>
+
+                    <div class="project-info" id="quote-api-info">
+                        <p>Quote API was created as part of my coursework in the premium Full Stack Development course on Codecademy</p>
+                        <p>Utilizing Node.js and the Express JavaScript framework, a local server is hosted that allows for GET and POST requests to be made from the user interface.</p>
+                        <p>A user can make a GET request for the entire database by clicking the "Fetch All Quotes" button, or return a single quote by
+                            clicking the "Fetch Random Quote". A user can also retrieve all quotes by a specific author by inputting a specific author into 
+                            the text box and clicking "Fetch by Author".</p>
+                        <p>If a user wants to add a quote to the database, they can click "Add a New Quote" at the top of the page. They are then prompted
+                            to input a quote and author for the quote. When both fields are filled out, the user can click "Submit Your Quote" to see a
+                            success message and return to the home screen to view all quotes and verify their quote was added to the database.
+                        </p>
+                        <p class="project-video" id="quote-api-video">
+                            <iframe width="840" height="472" src="https://www.youtube.com/embed/lpTNjvABnq4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </p>
+                    </div>
+                </div>
+                <script src="scripts/projects/Quote API/showQuoteAPI.js"></script>
+            </div>
+            <script src="scripts/projects/animateProjectsSection.js"></script>
+
+
+
+            <div class="section-container" id="skills-container">
+                <div class="section-header-container" id="skills-header-container">
+                    <h2 class="subtitle">Skills</h2>
+                </div>
+                <div id="skill-description-top"></div>
+                <div id='skills'>
+                    <div class="skill-bar" id="skill-bar1">
+                        <img class="skill" id="js" src="./images/skills/javascipt.svg" alt="JavaScript">
+                        <img class="skill" id="html" src="./images/skills/html.svg" alt="HTML">
+                        <img class="skill" id="css" src="./images/skills/css3.svg" alt="CSS">
+                        <img class="skill" id="git" src="./images/skills/git.svg" alt="Git">
+                        <img class="skill" id="command-line" src="./images/skills/cmd.svg" alt="Command Line">
+                    </div>
+                    <div class="skill-bar" id="skill-bar2">
+                        <img class="skill" id= "gitHub" src="./images/skills/github.svg" alt="Git Hub">
+                        <img class="skill" id="nodeJS" src="./images/skills/node.svg" alt="Node.js">
+                        <img class="skill" id="npm" src="./images/skills/npm.svg" alt="Node Package Manager">                            
+                        <img class="skill" id="postman" src="./images/skills/postman.png" alt="Postman">
+                        <img class="skill" id="accessibility" src="./images/skills/accessibility.svg" alt="Accessibility">
+                    </div>
+                </div>
+                <script src="scripts/skills/skills-hover.js"></script>
+                <div id="skill-description-bottom"></div>
+            </div>
+
+
+
+            <div id="contact-container">
+                <div class="section-header-container" id="contact-header">
+                    <h2 class="subtitle">Contact</h2>
+                    <p id="contact-paragraph">Have an interesting project? I'd love to collaborate.</p>
+                </div> 
+                
+                <div class="contact-text-div">   
+                    <div class="contact-image-div">
+                        <a class="contact-method" href="mailto:gabrielbigelow.code@gmail.com" id="email-pic"><img class="contact-method" src="images/skills/gmail.svg" alt="Email address"></a>
+                    </div>
+                    <a class="contact-text-div" href="mailto:gabrielbigelow.code@gmail.com">gabrielbigelow.code@gmail.com</a> 
+                </div>
+                <div class="contact-text-div">
+                    <div class="contact-image-div">
+                        <a class="contact-method" href="https://www.linkedin.com/in/gabriel-bigelow-b37b24232/"><img class="contact-method" src="images/skills/linkedin.svg" alt="LinkedIn"></a>
+                    </div>
+                    <a class="contact-text-div" href="https://www.linkedin.com/in/gabriel-bigelow-b37b24232/">Gabriel Bigelow</a>
+                </div>
+                <div class="contact-text-div">
+                    <div class="contact-image-div">
+                        <a class="contact-method" href="https://github.com/gabriel-bigelow"><img class="contact-method" src="images/skills/github.svg" alt="Github account"></a>
+                    </div>
+                    <a class="contact-text-div" href="https://github.com/gabriel-bigelow">Gabriel-Bigelow</a>
+                </div>
+            </div>   
+        </body>
+    </HTML>
+
+    

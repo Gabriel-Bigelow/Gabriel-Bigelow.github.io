@@ -1,0 +1,2528 @@
+<!DOCTYPE html>
+<!-- This is based on DillingerLee's great template here:
+https://github.com/Team-Code/KA_Offline -->
+<html>
+ <head>
+    <title>Four Square</title> 
+</head>
+ <body>
+  <link rel="stylesheet" href="style.css">
+    <p align="center"> 
+	<!--This draws the Canvas on the webpage -->
+      <canvas id="mycanvas"></canvas> 
+    </p>
+ </body>
+ <style>
+     .grid{
+         display: grid;
+         grid-template-columns: repeat(5, 1fr);
+
+         margin: 0 auto;
+     }
+
+     .image, .grid-content{
+         grid-row: 1 / 2;
+     }
+
+     .image{
+         grid-column: 1 / 3;
+     }
+
+     .grid-content{
+         grid-column: 2 / -1;
+         align-self: center;
+     }
+
+     
+
+ </style>
+ 
+ <!-- Run all the JavaScript stuff -->
+ <!-- Include the processing.js library -->
+ <!-- See https://khanacademy.zendesk.com/hc/en-us/articles/202260404-What-parts-of-ProcessingJS-does-Khan-Academy-support- for differences -->
+ 
+
+ <script class="grid-content" src="fourSquareModified.min.js"></script> 
+ 
+ <script>
+//going to try to add controller support here
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //Processing.js script to rewrite the code here
+    var sketchProc = function(processingInstance) {
+     with (processingInstance) {
+        size(1920, 1080); 
+        frameRate(60);
+
+
+
+
+
+
+
+
+//sound imports
+wiiShop = new Audio('sounds/music/wiiHV.mp3');
+football = new Audio('sounds/music/football.mp3');
+crabrave = new Audio('sounds/music/crabraveQ.mp3');
+
+select = new Audio('sounds/select.wav');
+
+ballHitHard = new Audio('sounds/ballhit/hard.wav')
+ballHitMedium = new Audio('sounds/ballhit/medium.wav')
+ballHitSoft = new Audio('sounds/ballhit/soft.wav')
+
+bounce0 = new Audio('sounds/bounce/0.mp3');
+bounce1 = new Audio('sounds/bounce/1.mp3');
+bounce2 = new Audio('sounds/bounce/2.mp3');
+bounce3 = new Audio('sounds/bounce/3.mp3');
+bounce4 = new Audio('sounds/bounce/4.mp3');
+
+krabs = new Audio('sounds/walking/krabs.mp3');
+krabsfast = new Audio('sounds/walking/krabsfast.mp3');
+
+travisScottSounds = new Audio('sounds/characterSelection/travisScott/bricks.mp3');
+soundTravisScottDope = new Audio('sounds/characterSelection/travisScott/dope.mp3');
+soundTravisScottItsLit = new Audio('sounds/characterSelection/travisScott/itsLit.mp3');
+soundTravisScottLetsGo = new Audio('sounds/characterSelection/travisScott/letsGo.mp3');
+soundTravisScottStraightUp = new Audio('sounds/characterSelection/travisScott/straightUp.mp3');
+
+var travisScottSounds = [travisScottSounds, soundTravisScottDope, soundTravisScottItsLit, soundTravisScottStraightUp, soundTravisScottLetsGo];
+
+soundHairySelect = new Audio('sounds/characterSelection/hairy/select.mp3');
+soundHairySave = new Audio('sounds/characterSelection/hairy/save.mp3');
+
+soundRadioactiveSelect = new Audio('sounds/characterSelection/radioactive/select.mp3');
+soundRadioactiveSave = new Audio('sounds/characterSelection/radioactive/save.mp3');
+
+
+
+
+
+
+//image imports
+imageMode(CENTER);
+var picMusicIcon = loadImage('images/musicIcon3.png');
+var picSoundIcon = loadImage('images/soundIcon.png');
+
+var picNoSkin = loadImage('images/skins/noSkin.png');
+var picTravisScott = loadImage('images/skins/travisScott.png');
+var picHairy = loadImage('images/skins/hairy.png');
+var picRadioactive = loadImage('images/skins/radioactive.png');
+
+var skins = [picNoSkin, picTravisScott, picHairy, picRadioactive];
+
+
+var playRandomBounceSound = function (){
+    var bounceSoundPicker = Math.floor(Math.random() * 5);
+
+    if(bounceSoundPicker === 0){
+        bounce0.play();
+    }
+
+    if(bounceSoundPicker === 1){
+        bounce1.play();
+    }
+
+    if(bounceSoundPicker === 2){
+        bounce2.play();
+    }
+
+    if(bounceSoundPicker === 3){
+        bounce3.play();
+    }
+
+    if(bounceSoundPicker === 4){
+        bounce4.play();
+    }
+}
+
+var musicCounter = 1;
+var firstStart = 1;
+
+
+var startUpMusic = function(){
+    if (player[1].points === 0 && player[2].points === 0){
+        if (musicCounter === 1 && firstStart === 0){
+            football2 = new Audio('sounds/music/football.mp3')
+            wiiShop2 = new Audio('sounds/music/wiiHV.mp3');
+            football2.play();
+            musicCounter = 2;
+        }
+                
+                
+    }
+    
+
+    if (player[1].points === 4 || player[2].points === 3){
+        football2.pause();
+        firstStart = 1;
+                
+                
+        if(musicCounter === 2 && firstStart === 1){
+            wiiShop2.play();
+            musicCounter = 3;
+        }
+    }
+};
+
+var winCounter = 0;
+var winMessage = 0;
+
+var victory = function (pNum){
+    if(player[pNum].points >= 100){
+        wiiShop2.pause();
+        winCounter += 1;
+
+        if (winCounter === 1){
+            crabrave.play();
+            winMessage = player[pNum].name;
+        }
+
+        textSize(150);
+        text(winMessage + ' wins!!!!!!!', squareCenterX, squareCenterY-squareSize*0.1);            
+    }
+}
+
+
+
+
+        
+        //ProgramCodeGoesHere
+var displayLoseMessage = false;
+var loseMessage = "";
+var losingSquare = 0;
+
+        //alignment variables
+var centerX = width/2;
+var centerY = height/2;
+var squareCenterX = centerX;
+var squareCenterY = centerY;
+var squareSize = 400;
+
+        //Character colors
+var grn = color(0, 255, 17);
+var ylw = color(255, 255, 0);
+var rd = color(255, 0, 0);
+var blu = color(0, 0, 255);
+var darkBlu = color(6, 27, 61)
+var prp = color(153, 0, 153);
+var cyn = color(0, 255, 255);
+var orn = color(255, 128, 0);
+var hpk = color(255, 0, 255);
+var wht = color(255, 255, 255);
+var changedColor;
+var redNumber;
+var greenNumber;
+var blueNumber;
+
+var colorNumberGrabber = function (clr){
+    var decimalNumber = clr + 16777216;
+    redNumber = decimalNumber / 65536;
+    greenNumber = (redNumber - Math.floor(redNumber)) * 256;
+    blueNumber = (greenNumber - Math.floor(greenNumber)) * 256;
+
+    redNumber = Math.floor(redNumber);
+    greenNumber = Math.floor(greenNumber);
+}
+
+var colorChanger = function(clr, changeBy1, changeBy2, changeBy3){
+    colorNumberGrabber(clr);
+    changedColor = color(redNumber-changeBy1, greenNumber-changeBy2, blueNumber-changeBy3);
+
+    if(redNumber < 0){
+        redNumber = 0;
+    }
+    if(redNumber > 255){
+        redNumber = 255;
+    }
+
+    if(greenNumber < 0){
+        greenNumber = 0;
+    }
+    if(greenNumber > 255){
+        greenNumber = 255;
+    }
+
+    if(blueNumber < 0){
+        greenNumber = 0;
+    }
+    if(blueNumber > 255){
+        blueNumber = 255;
+    }
+
+};
+
+//ball  color
+var pnk = color(255, 212, 255);
+
+var blk = color(0, 0, 0);
+var transparency = 140;
+
+//ALL means every player gets these variables' values applied to them by default
+//ALL PLAYER location variables
+var x;
+var y;
+
+//All PLAYER size variables
+var playerSize = 100;
+var playerSkin = picNoSkin;
+
+//ALL PLAYER speed / sprint variables
+var pTopSpeed = 5;
+var pAccelRate = 0.5;
+var pDecelRate = 0.5;
+
+var sprintEnergy = 100;
+var sprintEnergyUseRate = 1;
+var sprintRechargeTimer = 60;
+
+var pTopSpeedCopy = pTopSpeed;
+var sprintTopSpeed = pTopSpeed * 1.5;
+
+var xSpeed = 0; //don't touch
+var ySpeed = 0; //don't touch
+
+//ALL PLAYER scoring variables
+var playerLose = 0;
+var points = 0;
+var roundsPlayed = 0;
+var roundsPlayedAsKing = 0;
+var kills = 0;
+var ownSquares = 0;
+
+//ball bounce variables
+var activeSquare = 0;
+var t=0;
+var bounceCount = 0;
+var bounceX = 0;
+var bounceY = 0;
+
+//playerX and playerY tell the player where to spawn in the square.
+//activeX and activeY give the center of where the square is located.
+var Square = function (playerX, playerY, activeX, activeY) {
+    this.playerX = playerX;
+    this.playerY = playerY;
+    this.activeX = activeX;
+    this.activeY = activeY;
+};
+
+var square = [1, 2, 3, 4];
+
+//CONTROLS functions/variables
+var keys = [];
+var keyPressed = function () {
+    keys[keyCode] = true;
+};
+
+var keyReleased = function () {
+    keys[keyCode] = false;
+};
+
+
+
+
+//BALL      constructor function
+var Ball = function (x, y, z, size, clr, xSpeed, ySpeed, zSpeed, hitBy) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    this.size = size;
+    this.clr = clr;
+    this.xSpeed = xSpeed;
+    this.ySpeed = ySpeed;
+    this.zSpeed = zSpeed;
+    this.hitBy = hitBy;
+};
+
+//BALL      object prototype
+Ball.prototype.draw = function() {
+    fill(this.clr);
+    ellipse(this.x, this.y, this.size, this.size);
+};
+
+//object prototype for ball's momentum
+Ball.prototype.momentum = function() {
+    this.x += this.xSpeed;
+    this.y += this.ySpeed;
+
+    //AIR FRICTION MODIFIER --- NEW
+    this.xSpeed *= 0.999;
+    this.ySpeed *= 0.999;
+
+    //GROUND FRICTION MODIFIER --- NEW
+    if(this.z === 0){
+        this.xSpeed *= 0.80;
+        this.ySpeed *= 0.80;
+
+    }
+};
+
+//need to set ball2.size = ball.z so that I can affect ball.z by playerspeed and have it change the appearance of the ball.
+Ball.prototype.bounceAnimation = function () {
+    ballOutline.x = ball.x;
+    ballOutline.y = ball.y;
+    if (ball.hitBy !== 0){
+        ballOutline.clr = player[this.hitBy].clr;
+    }
+    else { ballOutline.clr = pnk; }
+    
+    ball2.size = -0.02*t*t + 2.0*t +ball.size;
+    ballOutline.size = ball2.size +2;
+    t += 1;
+    
+    
+    if (t === 100) {
+        t = 0;
+        
+        playRandomBounceSound();
+
+        if (ball.hitBy !== 0) {
+            bounceCount += 1;
+        }
+        if (bounceCount === 1){
+            bounceX = ball.x;
+            bounceY = ball.y;
+        }
+    }
+};
+
+
+
+
+
+//BALL      attributes
+var ball = new Ball(centerX+squareSize/2, centerY-squareSize/2, 25, 50, pnk, 0, 0, 0, 0);
+var ball2 = new Ball(ball.x, ball.y, ball.z, ball.size, pnk, ball.xSpeed, ball.ySpeed, ball.zSpeed);
+var ballOutline = new Ball(ball.x, ball.y, ball.z, 0, pnk, ball.xSpeed, ball.ySpeed, ball.zSpeed);
+var ballShadow = new Ball (ball.x, ball.y, ball.z, 0, blk, ball.xSpeed, ball.ySpeed, ball.zSpeed);
+
+
+Ball.prototype.checkForWallCollision = function () {
+    if ((this.x  <= squareCenterX-squareSize*1.35 + ball.size/2) || (this.x > squareCenterX+squareSize*1.35-ball.size/2)){
+        this.xSpeed = -this.xSpeed;
+        playRandomBounceSound();
+    }      
+    if ((this.y <= 0+ball.size/2) || (this.y > height-ball.size/2)){
+        this.ySpeed = -this.ySpeed;
+        playRandomBounceSound();
+    }
+
+};
+
+
+
+
+//PLAYER    constructor function
+var Player = function (clr, square, name) {
+    this.x = x;
+    this.y = y;
+    this.size = playerSize;
+    this.clr = clr;
+    this.xSpeed = xSpeed;
+    this.ySpeed = ySpeed;
+    this.lose = playerLose;
+    this.square = square;
+    this.pTopSpeed = pTopSpeed;
+    this.sprintEnergy = sprintEnergy;
+    this.sprintRechargeTimer = sprintRechargeTimer
+
+
+    this.name = name;
+    this.points = points;
+    this.roundsPlayed = roundsPlayed;
+    this.skin = playerSkin;
+};
+
+
+var resetPoints = function(){
+    for(var i = 0; i < player.length; i++){
+        player[1].points = -6;
+        player[2].points = -3;
+        player[3].points = -1;
+        player[i].points = 0;
+    }
+}
+
+var reset = function(){
+    if (keys[49] === true && keys[50] === true && keys[51] === true && keys[32] === true){
+        for(var pNum = 0; pNum < player.length; pNum ++){
+            winCounter = 0;
+            player[pNum].lose = 1;
+            football2.pause();
+            wiiShop2.pause();
+            crabrave.pause();
+            musicCounter = 1;
+            firstStart = 0;
+        }
+        resetPoints();
+    }
+}
+
+//PLAYER    object prototype
+Player.prototype.draw = function() {
+    fill(this.clr);
+    if (this.skin === picNoSkin){
+        ellipse(this.x, this.y, this.size, this.size);
+    }
+    if (this.skin === picHairy){
+        image(this.skin, this.x, this.y, this.size*1.1, this.size*1.1);
+    } else if (this.skin === picRadioactive){
+        image(this.skin, this.x, this.y, this.size*1.676, this.size*1.676);
+    } else{
+        image(this.skin, this.x, this.y, this.size, this.size);
+    }
+    
+    
+    //keeps the ball on screen
+    this.x = constrain(this.x, 0, width);
+    this.y = constrain(this.y, 0, height);
+};
+
+//ballspeed is changed by 1 acceleration rate if the player is holding against the wall when ball collides (bug/glitch?).  Fix later
+Player.prototype.CheckForWallCollision = function () {
+    if ((this.x < 0) || (this.x > width)){
+        this.xSpeed = 0;
+    }
+    if ((this.y < 0) || (this.y > height)){
+        this.ySpeed = 0;
+    }
+    if(this.square > 4 && this.x < squareCenterX+squareSize*1.5){
+        this.xSpeed = 1;
+    }
+};
+
+//PLAYER    
+//MOVEMENT
+//MOMENTUM
+//      Maintain momentum after button is released
+Player.prototype.momentum = function () {
+    this.y += this.ySpeed;
+    this.x += this.xSpeed;
+};
+
+//PLAYER
+//MOVEMENT
+//MOMENTUM
+//      Decelerate Y after button is released
+Player.prototype.resetAccelY = function () {
+    if (this.ySpeed >= pDecelRate){
+        this.ySpeed -= pDecelRate;
+    }
+    
+    if (this.ySpeed <= (-1*pDecelRate)){
+        this.ySpeed += pDecelRate;
+    }
+    
+    if ((this.ySpeed > (-1*pDecelRate)) && (this.ySpeed < pDecelRate)){
+        this.ySpeed = 0;
+    }
+};
+
+//PLAYER
+//MOVEMENT
+//MOMENTUM
+//      Decelerate X after button is released
+Player.prototype.resetAccelX = function () {
+    if (this.xSpeed >= pDecelRate){
+        this.xSpeed -= pDecelRate;
+    }
+    
+    if (this.xSpeed <= (-1*pDecelRate)){
+        this.xSpeed += pDecelRate;
+    }
+    
+    if ((this.xSpeed > (-1 *pDecelRate)) && (this.xSpeed < pDecelRate)){
+        this.xSpeed = 0;
+    }
+};
+
+
+//PLAYER
+//MOVEMENT
+//  N/S/E/W
+//go up
+Player.prototype.north = function () {
+    if (this.ySpeed >= (-1*this.pTopSpeed + pAccelRate)){
+        this.ySpeed -= pAccelRate;
+    }
+};
+
+//go down
+Player.prototype.south = function () {
+    if (this.ySpeed <= this.pTopSpeed - pAccelRate){
+        this.ySpeed += pAccelRate;
+    }
+};
+
+//go left
+Player.prototype.west = function () {
+    if (this.xSpeed >= (-1*this.pTopSpeed + pAccelRate)){
+        this.xSpeed -= pAccelRate;
+    }
+    if (this.xSpeed < -1*this.pTopSpeed){
+        this.xSpeed += pAccelRate;
+    }
+};
+
+//go right
+Player.prototype.east = function () {
+    if (this.xSpeed <= this.pTopSpeed - pAccelRate){
+        this.xSpeed += pAccelRate;
+    }
+    if (this.xSpeed > this.pTopSpeed){
+        this.xSpeed -= pAccelRate;
+    }
+};
+
+Player.prototype.sprintAbility = function (pNum, key) {
+    rectMode(CORNER);
+    fill(rd);
+    rect(this.x+this.size/2, this.y + squareSize * 1/6, -100, 5);
+    fill(grn);
+    rect(this.x-this.size/2, this.y + squareSize * 1/6, this.sprintEnergy, 5);
+    
+        //Timer counts to 60 to allow 1 second to pass after releasing sprint before charging sprintEnergy
+    if (keys[key] !== true){
+        this.sprintRechargeTimer += 1;
+    }
+
+    //charge sprintEnergy if sprintEnergy is less than 100.
+    if(this.sprintEnergy < 100 && keys[key] !== true && this.sprintRechargeTimer > 60){
+        this.sprintEnergy += 0.33;
+        this.pTopSpeed = pTopSpeedCopy;
+
+        
+    }
+
+    if(this.sprintEnergy > 1.67 && keys [key] === true){
+        this.sprintEnergy -= 1.67;
+        this.pTopSpeed = sprintTopSpeed;
+        this.sprintRechargeTimer = 0;
+    } else {
+        this.pTopSpeed = pTopSpeedCopy;
+    }
+    //DEBUGGING REMOVE
+    //text("Sprint energy: " + this.sprintEnergy, this.x - 50, this.y - 100);
+    //text("Player top speed: + " + this.pTopSpeed, this.x - 50, this.y - 120);
+    
+    //remove later.? This fixes the active square marker being way off of the square graphics.
+    rectMode(CENTER);
+}
+
+
+var player = [1, 2, 3, 4];
+
+//PLAYER    
+//ATTRIBUTES
+player[1] = new Player(grn, 1, "Player 1");
+player[2] = new Player(ylw, 2, "Player 2");
+player[3] = new Player(blu, 3, "Player 3");
+player[4] = new Player(rd, 4, "Player 4");
+/*
+player[5] = new Player(pnk, 5, "Abby");
+player[6] = new Player(cyn, 6, "Gabriel");
+player[7] = new Player(orn, 7, "Brad");
+player[8] = new Player(hpk, 8, "Joey");*/
+
+//Square positioning variables
+square[1] = new Square (squareCenterX+squareSize*.95, squareCenterY-squareSize*.95, squareCenterX+squareSize/2, squareCenterY-squareSize/2);
+square[2] = new Square (squareCenterX-squareSize*.95, squareCenterY-squareSize*.95, squareCenterX-squareSize/2, squareCenterY-squareSize/2);
+square[3] = new Square (squareCenterX-squareSize*.95, squareCenterY+squareSize*.95, squareCenterX-squareSize/2, squareCenterY+squareSize/2);
+square[4] = new Square (squareCenterX+squareSize*.95, squareCenterY+squareSize*.95, squareCenterX+squareSize/2, squareCenterY+squareSize/2);
+
+
+for(var squareNum = 4; squareNum < player.length; squareNum++){
+    square.push(new Square(squareCenterX + squareSize * 1.7, squareCenterY+squareSize*2 - squareNum*120          ));
+}
+
+var distributePoints = function(i){
+    if(player[i].lose !== 1){
+        if(player[i].square === 1){
+            player[i].points += 4;
+        }
+        if(player[i].square === 2){
+            player[i].points += 3;
+        }
+        if(player[i].square === 3){
+            player[i].points += 2;
+        }
+        if(player[i].square === 4){
+            player[i].points += 1;
+        }
+    }
+}
+
+// losecondition v2.0
+var loseCondition = function (pNum){
+    if(player[pNum].lose === 1){
+        losingSquare = player[pNum].square;        
+
+        for(var i = 0; i < player.length; i++){
+            distributePoints(i);
+            if(player[i].square > losingSquare){
+                player[i].square -= 1;
+            }
+        }
+
+        player[pNum].lose = 0;
+        player[pNum].square = player.length-1;
+
+        for(var i = 1; i < player.length; i++){
+                player[i].x = square[player[i].square].playerX;
+                player[i].y = square[player[i].square].playerY;
+                player[i].sprintEnergy = 100;
+        }
+
+        activeSquare = 0;
+        bounceCount = 0;
+        ball.hitBy = 0;
+        ball.x = squareCenterX+squareSize/2;
+        ball.y = squareCenterY-squareSize/2;
+        ball.xSpeed = 0;
+        ball.ySpeed = 0;
+        displayLoseMessage = true;
+    }    
+};
+
+mousePressed = function(){
+    mouseButton = 37;
+};
+
+mouseReleased = function(){
+   mouseButton = 0;
+}
+
+
+
+
+
+
+startMenu = function(){
+    draw = function(){
+        background(50, 50, 50)
+        fill(cyn);
+        image(picSoundIcon, 120, 50, 50, 50);
+        image(picMusicIcon, 50, 50, 50, 50,);
+
+        textAlign(CENTER)
+        textSize(300);
+        text('Four Square', centerX, centerY);
+
+        rectMode(CENTER);
+        fill(darkBlu);
+        stroke(cyn);
+        strokeWeight(5);
+
+        rect(centerX - width * 1/6, centerY + height * 1/3, width*1/5, height*1/10);
+        rect(centerX + width * 1/6, centerY + height * 1/3, width*1/5, height*1/10);
+
+        fill(wht);
+        textSize(20);
+        text('Play Now', centerX - width * 1/6, centerY + height * 1/3 + 5);
+        text('Character Customization', centerX + width * 1/6, centerY + height * 1/3 + 5);
+
+        
+        
+
+        mouseClicked = function(){
+        };
+        
+        
+        
+        //left "Play Now" button
+        if(mouseX > centerX - width * 1/6 - width * 1/10 && mouseX < centerX - width * 1/6 + width * 1/10 && mouseY > centerY + height * 1/3 - height * 1/20 && mouseY < centerY + height * 1/3 + height * 1/20){
+            
+            fill(12, 60, 100);
+            rect(centerX - width * 1/6, centerY + height * 1/3, width*1/5, height*1/10);
+            fill(wht);
+            textSize(20);
+            text('Play Now', centerX - width * 1/6, centerY + height * 1/3 + 5);
+            
+            
+            if (mouseButton === 37){
+                fill(10, 50, 80);
+                rect(centerX - width * 1/6, centerY + height * 1/3, width*1/5, height*1/10);
+                textSize(20);
+                fill(wht);
+                text('Play Now', centerX - width * 1/6, centerY + height * 1/3 + 5);
+            }
+
+            mouseClicked = function(){
+                for(var pNum = 1; pNum < player.length; pNum++){
+                    player[pNum].x = square[pNum].playerX
+                    player[pNum].y = square[pNum].playerY
+                }
+
+                firstStart = 0;
+                playScene();
+                mouseClicked = function(){};
+            }
+        }
+
+
+
+        //right "Character Creation" button
+        if(mouseX > centerX + width * 1/6 - width * 1/10 && mouseX < centerX + width * 1/6 + width * 1/10 && mouseY > centerY + height * 1/3 - height * 1/20 && mouseY < centerY + height * 1/3 + height * 1/20){
+            
+            fill(12, 60, 100);
+            rect(centerX + width * 1/6, centerY + height * 1/3, width*1/5, height*1/10);
+            fill(wht);
+            textSize(20);
+            text('Character Customization', centerX + width * 1/6, centerY + height * 1/3 + 5);
+            
+            
+            if (mouseButton === 37){
+                fill(10, 50, 80);
+                rect(centerX + width * 1/6, centerY + height * 1/3, width*1/5, height*1/10);
+                textSize(20);
+                fill(wht);
+                text('Character Customization', centerX + width * 1/6, centerY + height * 1/3 + 5);
+            }
+
+            mouseClicked = function(){
+                characterCustomization();
+            }
+        }
+
+    }
+
+};
+
+
+var selectedChar;
+var selectedButton;
+var menu;
+var menuPicker = function(){
+    mouseClicked = function(){
+        if (selectedButton !== 0){
+                menu = selectedButton;
+        }
+    }
+        
+    if(menu === 1){
+        nameInputBox();
+        nameInput();
+    }
+    if(menu === 2){
+        colorBox();
+    }
+    if(menu === 3){
+
+    }
+    if(menu === 4){
+
+    }
+
+    if(menu === 5){
+        skinsMenu();
+    }
+
+    if(menu === -1){
+        characterCustomization();
+    }
+}
+
+var characterCustomization = function (){
+    draw = function(){
+
+        noStroke();
+        background(50, 50, 50);
+        textAlign(CENTER);
+        textSize(100);
+        fill(wht);
+        text("Customize your character", centerX, height * 1/6);
+
+        rectMode(CENTER);
+        textSize(30);
+
+        selectedChar = 0;
+        menu = 0;
+        mouseClicked = function(){
+        }
+        
+        //top row of buttons
+        for(var pNum = 1; pNum <= 4; pNum++){
+            fill(player[pNum].clr);
+            
+            if (mouseX > centerX - width*11/24 + width/4*(pNum-1) && mouseX < centerX - width*7/24 + width/4*(pNum-1) && mouseY > centerY - height/30 && mouseY < centerY + height/30){
+                colorChanger(player[pNum].clr, 50, 50, 50);
+                fill(changedColor);
+                if (mouseButton === 37){
+                    selectedChar = pNum;
+                    mouseClicked = function(){
+                        customizeCharacter();
+                    }
+                }
+            }
+            rect(centerX - width*5/8 + width / 4 * pNum, centerY, width* 1/6, height*1/15);
+            fill(blk);
+            text(player[pNum].name, centerX - width/2 - width/8 + width / 4 * pNum, centerY + 10);
+            player[pNum].x = centerX - width/2 - width/8 + width / 4 * (pNum)
+            player[pNum].y = centerY - height/5
+            player[pNum].draw();
+        }
+        /*
+        //bottom row of buttons
+        for(var pNum = 5; pNum <= 8; pNum++){
+            fill(player[pNum].clr);
+            
+            if (mouseX > centerX - width*11/24 + width/4*(pNum-5) && mouseX < centerX - width*7/24 + width/4*(pNum-5) && mouseY > centerY + height/3 - height/30 && mouseY < centerY + height/3 + height/30){
+                colorChanger(player[pNum].clr, 50, 50, 50);
+                fill(changedColor);
+                if (mouseButton === 37){
+                    selectedChar = pNum;
+                    mouseClicked = function(){
+                        customizeCharacter();
+                    }
+                }
+            }
+            rect(centerX - width*5/8 + width/4 * (pNum-4), centerY+height/3, width* 1/6, height*1/15);
+            fill(blk);
+            text(player[pNum].name, centerX - width/2 - width/8 + width / 4 * (pNum-4), centerY+height/3 + 10);
+            player[pNum].x = centerX - width/2 - width/8 + width / 4 * (pNum-4)
+            player[pNum].y = centerY + height/5
+            player[pNum].draw();
+        }*/
+
+        //back button
+        fill(cyn);
+        rect(width/10, height/8, width/10, height/10);
+        if (mouseX > width/20 && mouseX < width*3/20 && mouseY > height*3/40 && mouseY < height*7/40){
+            colorChanger(cyn, 50, 50, 50);
+            fill(changedColor);
+            rect(width/10, height/8, width/10, height/10);
+            if (mouseButton === 37){
+                menu = -1;
+            }
+        }
+        fill(blk)
+        text('Back', width/10, height/8 + 10);
+
+        if(menu === -1){
+            mouseClicked = function(){
+                startMenu();
+            }
+            
+        }
+
+
+    }
+};
+
+var pName = ['p', 'l', 'a', 'y', 'e', 'r'];
+var waitForHold = 0;
+var waitForHold2 = 0;
+
+var saveName = function(){
+    if(keys[10] === true || goodToSave === true && pName.length > 0){
+        player[selectedChar].name = pName.join('')
+    }
+}
+
+var nameInput = function(){
+    //try to make a name input function here
+    //if the player hits the "a" key, that will be the first input.
+    //if the player then hits the "b" key, that will be the second input.
+    //if the player messes up and hits the "h" key, that will be the third input.
+    //if the player presses the "backspace" key, that will erase the last input.
+    //if the player presses the "b" key, that will be the third input.
+    //if the player presses the "y" key, that will be the fourth input.
+    //if the player presses the "enter" key, or the save button, that will save the player's name to their character and close the name menu.
+
+    //enter = 13
+    //shift = 16
+    //space = 32
+
+    var eraseInput = function(){
+        if(keys[8] === true){
+            if(waitForHold2 === 0){
+                pName.pop();
+            } else if(waitForHold2 >= 45){
+                pName.pop();
+            }
+            waitForHold2++;
+        } else {
+            waitForHold2 = 0;
+        }
+    }
+
+    var inputCharacter = function(){
+        if (keys[65] === true){
+            if(waitForHold === 0){
+                pName.push('a');
+            } else if(waitForHold >= 45){
+                pName.push('a');
+            }
+            waitForHold++;
+
+        } else if (keys[66] === true){
+            if(waitForHold === 0){
+                pName.push('b');
+            } else if(waitForHold >= 45){
+                pName.push('b');
+            }
+            waitForHold++;
+        
+        } else if (keys[67] === true){
+            if(waitForHold === 0){
+                pName.push('c');
+            } else if(waitForHold >= 45){
+                pName.push('c');
+            }
+            waitForHold++;
+
+        } else if (keys[68] === true){
+            if(waitForHold === 0){
+                pName.push('d');
+            } else if(waitForHold >= 45){
+                pName.push('d');
+            }
+            waitForHold++;
+
+        } else if (keys[69] === true){
+            if(waitForHold === 0){
+                pName.push('e');
+            } else if(waitForHold >= 45){
+                pName.push('e');
+            }
+            waitForHold++;
+
+        } else if (keys[70] === true){
+            if(waitForHold === 0){
+                pName.push('f');
+            } else if(waitForHold >= 45){
+                pName.push('f');
+            }
+            waitForHold++;
+
+        } else if (keys[71] === true){
+            if(waitForHold === 0){
+                pName.push('g');
+            } else if(waitForHold >= 45){
+                pName.push('g');
+            }
+            waitForHold++;
+
+        } else if (keys[72] === true){
+            if(waitForHold === 0){
+                pName.push('h');
+            } else if(waitForHold >= 45){
+                pName.push('h');
+            }
+            waitForHold++;
+
+        } else if (keys[73] === true){
+            if(waitForHold === 0){
+                pName.push('i');
+            } else if(waitForHold >= 45){
+                pName.push('i');
+            }
+            waitForHold++;
+
+        } else if (keys[74] === true){
+            if(waitForHold === 0){
+                pName.push('j');
+            } else if(waitForHold >= 45){
+                pName.push('j');
+            }
+            waitForHold++;
+
+        } else if (keys[75] === true){
+            if(waitForHold === 0){
+                pName.push('k');
+            } else if(waitForHold >= 45){
+                pName.push('k');
+            }
+            waitForHold++;
+            
+        } else if (keys[76] === true){
+            if(waitForHold === 0){
+                pName.push('l');
+            } else if(waitForHold >= 45){
+                pName.push('l');
+            }
+            waitForHold++;
+
+        } else if (keys[77] === true){
+            if(waitForHold === 0){
+                pName.push('m');
+            } else if(waitForHold >= 45){
+                pName.push('m');
+            }
+            waitForHold++;
+
+        } else if (keys[78] === true){
+            if(waitForHold === 0){
+                pName.push('n');
+            } else if(waitForHold >= 45){
+                pName.push('n');
+            }
+            waitForHold++;
+
+        } else if (keys[79] === true){
+            if(waitForHold === 0){
+                pName.push('o');
+            } else if(waitForHold >= 45){
+                pName.push('o');
+            }
+            waitForHold++;
+
+        } else if (keys[80] === true){
+            if(waitForHold === 0){
+                pName.push('p');
+            } else if(waitForHold >= 45){
+                pName.push('p');
+            }
+            waitForHold++;
+
+        } else if (keys[81] === true){
+            if(waitForHold === 0){
+                pName.push('q');
+            } else if(waitForHold >= 45){
+                pName.push('q');
+            }
+            waitForHold++;
+
+        } else if (keys[82] === true){
+            if(waitForHold === 0){
+                pName.push('r');
+            } else if(waitForHold >= 45){
+                pName.push('r');
+            }
+            waitForHold++;
+
+        } else if (keys[83] === true){
+            if(waitForHold === 0){
+                pName.push('s');
+            } else if(waitForHold >= 45){
+                pName.push('s');
+            }
+            waitForHold++;
+
+        } else if (keys[84] === true){
+            if(waitForHold === 0){
+                pName.push('t');
+            } else if(waitForHold >= 45){
+                pName.push('t');
+            }
+            waitForHold++;
+
+        } else if (keys[85] === true){
+            if(waitForHold === 0){
+                pName.push('u');
+            } else if(waitForHold >= 45){
+                pName.push('u');
+            }
+            waitForHold++;
+
+        } else if (keys[86] === true){
+            if(waitForHold === 0){
+                pName.push('v');
+            } else if(waitForHold >= 45){
+                pName.push('v');
+            }
+            waitForHold++;
+
+        } else if (keys[87] === true){
+            if(waitForHold === 0){
+                pName.push('w');
+            } else if(waitForHold >= 45){
+                pName.push('w');
+            }
+            waitForHold++;
+
+        } else if (keys[88] === true){
+            if(waitForHold === 0){
+                pName.push('x');
+            } else if(waitForHold >= 45){
+                pName.push('x');
+            }
+            waitForHold++;
+
+        } else if (keys[89] === true){
+            if(waitForHold === 0){
+                pName.push('y');
+            } else if(waitForHold >= 45){
+                pName.push('y');
+            }
+            waitForHold++;
+
+        } else if (keys[90] === true){
+            if(waitForHold === 0){
+                pName.push('z');
+            } else if(waitForHold >= 45){
+                pName.push('z');
+            }
+            waitForHold++;
+        } else if (keys[49] === true){
+            if(waitForHold === 0){
+                pName.push('1');
+            } else if(waitForHold >= 45){
+                pName.push('1');
+            }
+            waitForHold++;
+        } else if (keys[50] === true){
+            if(waitForHold === 0){
+                pName.push('2');
+            } else if(waitForHold >= 45){
+                pName.push('2');
+            }
+            waitForHold++;
+        } else if (keys[51] === true){
+            if(waitForHold === 0){
+                pName.push('3');
+            } else if(waitForHold >= 45){
+                pName.push('3');
+            }
+            waitForHold++;
+        } else if (keys[52] === true){
+            if(waitForHold === 0){
+                pName.push('4');
+            } else if(waitForHold >= 45){
+                pName.push('4');
+            }
+            waitForHold++;
+        } else if (keys[53] === true){
+            if(waitForHold === 0){
+                pName.push('5');
+            } else if(waitForHold >= 45){
+                pName.push('5');
+            }
+            waitForHold++;
+        } else if (keys[54] === true){
+            if(waitForHold === 0){
+                pName.push('6');
+            } else if(waitForHold >= 45){
+                pName.push('6');
+            }
+            waitForHold++;
+        } else if (keys[55] === true){
+            if(waitForHold === 0){
+                pName.push('7');
+            } else if(waitForHold >= 45){
+                pName.push('7');
+            }
+            waitForHold++;
+        } else if (keys[56] === true){
+            if(waitForHold === 0){
+                pName.push('8');
+            } else if(waitForHold >= 45){
+                pName.push('8');
+            }
+            waitForHold++;
+        } else if (keys[57] === true){
+            if(waitForHold === 0){
+                pName.push('9');
+            } else if(waitForHold >= 45){
+                pName.push('9');
+            }
+            waitForHold++;
+        } else if (keys[48] === true){
+            if(waitForHold === 0){
+                pName.push('0');
+            } else if(waitForHold >= 45){
+                pName.push('0');
+            }
+            waitForHold++;
+        } else if (keys[32] === true){
+            if(waitForHold === 0){
+                pName.push(' ');
+            } else if(waitForHold >= 45){
+                pName.push(' ');
+            }
+            waitForHold++;
+        } else {
+            waitForHold = 0;
+        }
+    };
+
+    var firstLetterToUpperCase = function (){
+    if (pName[0] === 'a'){
+        pName[0] = 'A'
+    }
+    if (pName[0] === 'b'){
+        pName[0] = 'B'
+    }
+    if (pName[0] === 'c'){
+        pName[0] = 'C'
+    }
+    if (pName[0] === 'd'){
+        pName[0] = 'D'
+    }
+    if (pName[0] === 'e'){
+        pName[0] = 'E'
+    }
+    if (pName[0] === 'f'){
+        pName[0] = 'F'
+    }
+    if (pName[0] === 'g'){
+        pName[0] = 'G'
+    }
+    if (pName[0] === 'h'){
+        pName[0] = 'H'
+    }
+    if (pName[0] === 'i'){
+        pName[0] = 'I'
+    }
+    if (pName[0] === 'j'){
+        pName[0] = 'J'
+    }
+    if (pName[0] === 'k'){
+        pName[0] = 'K'
+    }
+    if (pName[0] === 'l'){
+        pName[0] = 'L'
+    }
+    if (pName[0] === 'm'){
+        pName[0] = 'M'
+    }
+    if (pName[0] === 'n'){
+        pName[0] = 'N'
+    }
+    if (pName[0] === 'o'){
+        pName[0] = 'O'
+    }
+    if (pName[0] === 'p'){
+        pName[0] = 'P'
+    }
+    if (pName[0] === 'q'){
+        pName[0] = 'Q'
+    }
+    if (pName[0] === 'r'){
+        pName[0] = 'R'
+    }
+    if (pName[0] === 's'){
+        pName[0] = 'S'
+    }
+    if (pName[0] === 't'){
+        pName[0] = 'T'
+    }
+    if (pName[0] === 'u'){
+        pName[0] = 'U'
+    }
+    if (pName[0] === 'v'){
+        pName[0] = 'V'
+    }
+    if (pName[0] === 'w'){
+        pName[0] = 'W'
+    }
+    if (pName[0] === 'x'){
+        pName[0] = 'X'
+    }
+    if (pName[0] === 'y'){
+        pName[0] = 'Y'
+    }
+    if (pName[0] === 'z'){
+        pName[0] = 'Z'
+    }
+};
+    
+    
+
+    if(pName.length <= 16){
+        inputCharacter();
+        firstLetterToUpperCase();
+    }
+    eraseInput();
+    saveName();
+};
+
+var nameInputBox = function (){
+    rect(centerX, centerY + height/4, width/2, height/4)
+    if(mouseX > centerX - width/20 && mouseX < centerX + width/20 && mouseY > height*15/16-height/20 && mouseY < height*15/16+height/20){
+        colorChanger(cyn, 50, 50, 50);
+        fill(changedColor);
+        if (mouseButton === 37){
+            goodToSave = true;
+        }
+    } else {
+        goodToSave = false;
+    }
+    rect(centerX, height*15/16, width/10, height/10);
+    fill(blk);
+    textSize(25);
+    text('Enter a name (up to 16 characters)', centerX, centerY + height/6);
+    textSize(100);
+    text(pName.join(''), centerX, centerY + height*2/7);
+    textSize(25);
+    text('Press the ENTER key or "SAVE" to save your name', centerX, height*17/20)
+    textSize(35)
+    text('SAVE', centerX, height*15/16 + 10);
+
+}
+
+
+
+
+
+
+
+
+var colorPreview = 1;
+var redPreview;
+var greenPreview;
+var bluePreview;
+
+var colorSlider = function(){
+    
+    while(colorPreview === 1){
+        colorNumberGrabber(player[selectedChar].clr);
+        redPreview = redNumber;
+        greenPreview = greenNumber;
+        bluePreview = blueNumber;
+        colorPreview = color(redPreview, greenPreview, bluePreview);
+    }
+
+    rSliderX = redPreview*3 + 115/384*width;
+    gSliderX = greenPreview*3 + 115/384*width;
+    bSliderX = bluePreview*3 + 115/384*width;
+
+    //red slider controls
+    if(mouseX > centerX - width*7/32 && mouseX < centerX + width*7/32 && mouseY > centerY+height*3/16 - 25 && mouseY < centerY+height*3/16 + 25 && mouseButton === 37){
+        redPreview = Math.floor((mouseX - 115/384*width)/3);
+        if(redPreview < 0){
+            redPreview = 0;
+        }
+        if(redPreview > 255){
+            redPreview = 255;
+        }
+    }
+    if (mouseX > centerX-width*8/35 - 15 && mouseX < centerX-width*8/35 + 15 && mouseY > centerY+height*3/16 - 15 && mouseY < centerY+height*3/16 + 15 && redPreview > 0){
+        mouseClicked = function(){
+            redPreview -= 1;
+        }
+    }
+    if (mouseX > centerX+width*8/35 - 15 && mouseX < centerX+width*8/35 + 15 && mouseY > centerY+height*3/16 - 15 && mouseY < centerY+height*3/16 + 15 && redPreview < 255){
+        mouseClicked = function(){
+            redPreview += 1;
+        }
+    }
+
+
+    if(mouseX > centerX - width*7/32 && mouseX < centerX + width*7/32 && mouseY > centerY+height/4 - 25 && mouseY < centerY+height/4 + 25 && mouseButton === 37){
+        greenPreview = Math.floor((mouseX - 115/384*width)/3);
+        if(greenPreview < 0){
+            greenPreview = 0;
+        }
+        if(greenPreview > 255){
+            greenPreview = 255;
+        }
+    }
+    if (mouseX > centerX-width*8/35 - 15 && mouseX < centerX-width*8/35 + 15 && mouseY > centerY+height*4/16 - 15 && mouseY < centerY+height*4/16 + 15 && greenPreview > 0){
+        mouseClicked = function(){
+            greenPreview -= 1;
+        }
+    }
+    if (mouseX > centerX+width*8/35 - 15 && mouseX < centerX+width*8/35 + 15 && mouseY > centerY+height*4/16 - 15 && mouseY < centerY+height*4/16 + 15 && greenPreview < 255){
+        mouseClicked = function(){
+            greenPreview += 1;
+        }
+    }
+    
+
+
+    if(mouseX > centerX - width*7/32 && mouseX < centerX + width*7/32 && mouseY > centerY+height*5/16 - 25 && mouseY < centerY+height*5/16 + 25 && mouseButton === 37){
+        bluePreview = Math.floor((mouseX - 115/384*width)/3);
+        if(bluePreview < 0){
+            bluePreview = 0;
+        }
+        if(bluePreview > 255){
+            bluePreview = 255;
+        }
+    }
+    if (mouseX > centerX-width*8/35 - 15 && mouseX < centerX-width*8/35 + 15 && mouseY > centerY+height*5/16 - 15 && mouseY < centerY+height*5/16 + 15 && bluePreview > 0){
+        mouseClicked = function(){
+            bluePreview -= 1;
+        }
+    }
+    if (mouseX > centerX+width*8/35 - 15 && mouseX < centerX+width*8/35 + 15 && mouseY > centerY+height*5/16 - 15 && mouseY < centerY+height*5/16 + 15 && bluePreview < 255){
+        mouseClicked = function(){
+            bluePreview += 1;
+        }
+    }
+
+
+    
+    text(mouseX, 300, 600);
+    text(mouseY, 300, 650);
+
+
+    colorPreview = color(redPreview, greenPreview, bluePreview);
+
+    fill()
+    text(centerX-width/5, 500, 500);
+    text(centerX+width/5, 500, 540);
+    text(mouseButton, 500, 570);
+};
+
+
+
+rSliderX = centerX
+gSliderX = centerX
+bSliderX = centerX
+
+var colorBox = function(){
+
+    rect(centerX, centerY + height/20, width/3, height/8)
+    rect(centerX, centerY + height/4, width*3/4, height/4)
+    rect(centerX, height*11/12, width/18, height/16);
+    fill(blk)
+    textSize(25);
+    text('Click and drag the slider for fast adjustments', centerX, centerY + height/20 - 20)
+    text('Click the "+" and "-" for fine tuning', centerX, centerY + height/20 + 30)
+    text('SAVE', centerX, height*11/12 + 5);
+
+    colorSlider();
+
+
+
+    textSize(30);
+    textAlign(RIGHT);
+    //r slider bar
+    rect(centerX, centerY+height/4-height/16, width*2/5, 2);
+    //r slider
+    rect(rSliderX, centerY+height/4-height/16, 15, 35);
+    //r - and + buttons
+    rect(centerX-width*8/35, centerY+height*3/16, 30, 30);
+    rect(centerX+width/5 + width/35, centerY+height*3/16, 30, 30);
+
+    //g slider bar
+    rect(centerX, centerY+height/4, width*2/5, 2);
+    //g slider
+    rect(gSliderX, centerY+height/4, 15, 35);
+    //g - and + buttons
+    rect(centerX-width*8/35, centerY+height/4, 30, 30);
+    rect(centerX+width/5 + width/35, centerY+height/4, 30, 30);
+    
+
+    //b slider bar
+    rect(centerX, centerY+height/4+height/16, width*2/5, 2);
+    //b slider
+    rect(bSliderX, centerY+height/4+height/16, 15, 35);
+    //b - and + buttons
+    rect(centerX-width*8/35, centerY+height*5/16, 30, 30);
+    rect(centerX+width/5 + width/35, centerY+height*5/16, 30, 30);
+    fill(blk);
+    //minus symbols
+    rect(centerX-width*8/35, centerY+height*3/16, 20, 2);
+    rect(centerX-width*8/35, centerY+height*4/16, 20, 2);
+    rect(centerX-width*8/35, centerY+height*5/16, 20, 2);
+    //+ symbols
+    rect(centerX+width*8/35, centerY+height*3/16, 20, 2);
+    rect(centerX+width*8/35, centerY+height*4/16, 20, 2);
+    rect(centerX+width*8/35, centerY+height*5/16, 20, 2);
+    rect(centerX+width*8/35, centerY+height*3/16, 2, 20);
+    rect(centerX+width*8/35, centerY+height*4/16, 2, 20);
+    rect(centerX+width*8/35, centerY+height*5/16, 2, 20);
+
+    fill(rd);
+    text('RED', centerX - width*5/16, centerY+height*3/16 + 10);
+    text(redPreview, centerX - width/4, centerY + height*3/16 + 10);
+    fill(grn);
+    text('GREEN', centerX - width*5/16, centerY+height/4 + 10);
+    text(greenPreview, centerX - width/4, centerY+height/4 + 10);
+    fill(blu);
+    text('BLUE', centerX - width*5/16, centerY+height/4+height/16 + 10);
+    text(bluePreview, centerX - width/4, centerY+height/4+height/16 + 10);
+    
+    
+    
+
+
+    //colorPreview
+    textAlign(CENTER);
+    text('Preview', centerX + width*2/7 - 2, centerY+height/4-height/20-20);
+    fill(colorPreview);
+    ellipse(centerX + width*2/7, centerY+height/4, player[selectedChar].size, player[selectedChar].size);
+
+    //save function
+    if(mouseX > centerX - width/36 && mouseX < centerX + width/36 && mouseY > height*11/12 - height/32 && mouseY < height*11/12 + height/32 && mouseButton === 37){
+        player[selectedChar].clr = colorPreview;
+    }
+};
+
+
+var selectedSkin = 0;
+var skinsMenu = function(){
+    rect(centerX, centerY + height/6, width*3/4, height/3)
+    rect(centerX, height*11/12, width/18, height/16);
+    fill(blk)
+    textSize(25);
+    text('Select a skin', centerX, centerY + height/20 - 20)
+    text('Click "SAVE" to apply the skin', centerX, centerY + height/20 + 30)
+    text('SAVE', centerX, height*11/12 + 5);
+    text('PREVIEW', centerX + width/3, centerY+height/7);
+    text('No skin', width/5, centerY + height/4); 
+
+    for(var skinNum = 0; skinNum < skins.length; skinNum++){
+        image(skins[skinNum], width/5 + skinNum*width/10, centerY + height/4, 100, 100);
+        if(mouseX > width/5 + skinNum*width/10 - 50 && mouseX < width/5 + skinNum*width/10 + 50 && mouseY > centerY + height/4 - 50 && mouseY < centerY + height/4 + 50){
+            if(mouseButton === 37){
+                selectedSkin = skinNum;
+                mouseClicked = function(){
+                    if(selectedSkin === 1){
+                        travisScottSounds[Math.floor(Math.random() * (travisScottSounds.length-1))].play();
+                    }
+                    if(selectedSkin === 2){
+                        soundHairySelect.play();
+                    }
+                    if(selectedSkin === 3){
+                        soundRadioactiveSelect.play();
+                    }
+                }
+            }
+            text(skinNum, width/5 + skinNum*width/10, centerY + height/8);
+        }
+        text(skinNum, width/5 + skinNum*width/10, centerY + height/6);
+    }
+
+    //preview
+    fill(player[selectedChar].clr);
+    if(selectedSkin === 0){
+        ellipse(centerX + width/3, centerY+height/15, playerSize, playerSize);
+    }
+    if(selectedSkin !== 0){
+        image(skins[selectedSkin], centerX + width/3, centerY+height/15, playerSize, playerSize);
+    }
+    
+
+    if(mouseX > centerX - width/36 && mouseX < centerX+width/36 && mouseY > height*11/12 - height/32 && mouseY < height*11/12 + height/32){
+        if(mouseButton === 37){
+            mouseClicked = function(){
+                player[selectedChar].skin = skins[selectedSkin];
+                if (selectedSkin === 1){
+                    travisScottSounds[4].play();
+                }
+                if(selectedSkin === 2){
+                    soundHairySave.play();
+                }
+                if(selectedSkin === 3){
+                    soundRadioactiveSave.play();
+                }
+            }
+        }
+    }
+};
+
+var customizeCharacter = function (){
+    draw = function(){
+        stroke(blk);
+        strokeWeight(1);
+        background(50, 50, 50);
+        textAlign(CENTER);
+        textSize(100);
+        fill(wht);
+        text('Customize ' + player[selectedChar].name, centerX, height * 1/6);
+        player[selectedChar].x = centerX;
+        player[selectedChar].y = centerY - height/4;
+        player[selectedChar].draw();
+
+        selectedButton = 0;
+
+        for(var num = 1; num < 5; num++){
+            fill(cyn);
+            if (mouseX > centerX - width*11/24 + width/4*(num-1) && mouseX < centerX - width*7/24 + width/4*(num-1) && mouseY > centerY - height*2/15 && mouseY < centerY - height/15){
+                colorChanger(cyn, 50, 50, 50);
+                fill(changedColor);
+
+                if (mouseButton === 37){
+                    selectedButton = num;
+                }
+            }
+            rect(centerX - width*5/8 + width/4 * num, centerY - height/10, width/6, height/15);
+        }
+
+        
+        if(mouseX > centerX - width*5/24 && mouseX < centerX - width/24 && mouseY > centerY - height*7/30 && mouseY < centerY - height/6){
+            colorChanger(cyn, 50, 50, 50);
+            fill(changedColor);
+            if(mouseButton === 37){
+                selectedButton = 5;
+            }
+            if(selectedButton === 5){
+                mouseClicked = function(){
+                    menu = 5;               
+                }
+            }
+        }
+        rect(centerX - width/8, centerY - height/5, width/6, height/15)
+        
+
+        //back button
+        rect(width/10, height/8, width/10, height/10);
+        if (mouseX > width/20 && mouseX < width*3/20 && mouseY > height*3/40 && mouseY < height*7/40){
+            colorChanger(cyn, 50, 50, 50);
+            fill(changedColor);
+            rect(width/10, height/8, width/10, height/10);
+            if (mouseButton === 37){
+                selectedButton = -1;
+                if (selectedButton === -1){
+                    mouseClicked = function(){
+                        menu = -1;
+                    }
+                }
+            }
+        }
+
+        menuPicker();
+
+        textSize(30);
+        fill(blk);
+        text('Back', width/10, height/8 + 10);
+        text('Name', centerX - width*5/8 + width/4, centerY - height/10 + 10);
+        text('Color', centerX - width*5/8 + width/2, centerY - height/10 + 10);
+        text('Running Sound', centerX - width*5/8 + width*3/4, centerY - height/10 + 10);
+        text('Controls', centerX - width*5/8 + width, centerY - height/10 + 10);
+        text('Skins', centerX - width/8, centerY - height/5+10);
+
+    }
+};
+
+
+
+
+startMenu();
+//characterCustomization();
+//customizeCharacter();
+
+var music = true;
+var musicControls = function(){
+    textAlign(LEFT);
+    textSize(30);
+    if (music = true){
+        text('Music On', 20, 30)
+    } else {
+        text('Music Off', 20, 30)
+    }    
+}
+
+
+playScene = function(){
+    //draw the scene function
+    draw = function() {
+        background(145, 145, 145);
+        noStroke();
+        
+
+        //music functions
+        startUpMusic();
+        musicControls();     
+
+        //arena
+        fill(255, 255, 255);
+        rectMode(CENTER);
+        //inner lines
+        rect(squareCenterX, squareCenterY, 5, squareSize*2);
+        rect(squareCenterX, squareCenterY, squareSize*2, 5);
+        //outer lines
+        rect(squareCenterX-squareSize, squareCenterY, 5, squareSize*2);
+        rect(squareCenterX+squareSize, squareCenterY, 5, squareSize*2);
+        rect(squareCenterX, squareCenterY-squareSize, squareSize*2, 5);
+        rect(squareCenterX, squareCenterY+squareSize, squareSize*2, 5);
+        //king square demarcation. Make the serving line here.
+        strokeWeight(5);
+        stroke();
+        line(squareCenterX+squareSize*2/3, squareCenterY-squareSize, squareCenterX+squareSize, squareCenterY-squareSize*2/3);
+        noStroke();
+
+
+        //graphics for outer walls for ball to bounce off of
+        rect(squareCenterX, squareCenterY-squareSize*1.35, squareSize+squareSize*1.7, 5);
+        rect(squareCenterX, squareCenterY+squareSize*1.35, squareSize+squareSize*1.7, 5);
+        rect(squareCenterX-squareSize*1.35, squareCenterY, 5, squareSize+squareSize*1.7);
+        rect(squareCenterX+squareSize*1.35, squareCenterY, 5, squareSize+squareSize*1.7);
+            
+
+        player[1].sprintAbility(1, 16);
+        player[2].sprintAbility(2, 67);
+        player[3].sprintAbility(3, 78);
+        player[4].sprintAbility(4, 190);
+
+    //PLAYER ///////////////////////////////////////////////////////////////////////////////////
+    //PLAYER1 controls
+
+    //PLAYER    MOVEMENT    Reset acceleration if no buttons are pressed.
+        if ( (keys[38] || keys[40]) !== true) {
+            player[1].resetAccelY();
+        }
+
+        if ( (keys[37] || keys[39]) !== true) {
+            player[1].resetAccelX();
+        }
+
+    //PLAYER    MOVEMENT    If button pressed, apply +direction function
+        if (keys[38] === true) {
+            player[1].north();
+        }
+
+        if (keys[40] === true) {
+            player[1].south();
+        }
+
+        if (keys[37] === true) {
+            player[1].west();
+        }
+
+        if (keys[39] === true) {
+            player[1].east();
+        }
+
+        if ((player[1].xSpeed !== 0 && player[1].xSpeed <= 5) || (player[1].ySpeed !== 0 && player[1].ySpeed <= 5)){
+            krabs.play();
+        } else {
+            krabs.pause();
+        }
+        if ((player[1].xSpeed > 5 || player[1].xSpeed < -5) || (player[1].ySpeed < -5 || player[1].ySpeed > 5)){
+            krabs.pause();
+            krabsfast.play();
+        } else{
+            krabsfast.pause();
+        }
+
+
+
+    //PLAYER2 controls
+
+    //PLAYER    MOVEMENT    Reset acceleration if no buttons are pressed.
+        if ( (keys[83] || keys[87]) !== true) {
+            player[2].resetAccelY();
+        }
+
+        if ( (keys[65] || keys[68]) !== true) {
+            player[2].resetAccelX();
+        }
+
+    //PLAYER    MOVEMENT    If button pressed, apply +direction function
+        if (keys[87] === true) {
+            player[2].north();
+        }
+
+        if (keys[83] === true) {
+            player[2].south();
+        }
+
+        if (keys[65] === true) {
+            player[2].west();
+        }
+
+        if (keys[68] === true) {
+            player[2].east();
+        }
+
+
+
+    //PLAYER3 controls
+
+    //PLAYER    MOVEMENT    Reset acceleration if no buttons are pressed.
+        if ( (keys[71] || keys[84]) !== true) {
+            player[3].resetAccelY();
+        }
+
+        if ( (keys[70] || keys[72]) !== true) {
+            player[3].resetAccelX();
+        }
+
+    //PLAYER    MOVEMENT    If button pressed, apply +direction function
+        if (keys[84] === true) {
+            player[3].north();
+        }
+
+        if (keys[71] === true) {
+            player[3].south();
+        }
+
+        if (keys[70] === true) {
+            player[3].west();
+        }
+
+        if (keys[72] === true) {
+            player[3].east();
+        }
+
+
+
+    //PLAYER3 controls
+
+    //PLAYER    MOVEMENT    Reset acceleration if no buttons are pressed.
+        if ( (keys[73] || keys[75]) !== true) {
+            player[4].resetAccelY();
+        }
+
+        if ( (keys[74] || keys[76]) !== true) {
+            player[4].resetAccelX();
+        }
+
+    //PLAYER    MOVEMENT    If button pressed, apply +direction function
+        if (keys[73] === true) {
+            player[4].north();
+        }
+
+        if (keys[75] === true) {
+            player[4].south();
+        }
+
+        if (keys[74] === true) {
+            player[4].west();
+        }
+
+        if (keys[76] === true) {
+            player[4].east();
+        }
+
+
+
+
+
+
+    // BALL STUFF ///////////////////////////////////////////////////////////////////////////////
+
+        var xdbpab = [0, 1, 2, 3, 4];
+        var ydbpab = [0, 1, 2, 3, 4];
+        var tdbpab = [0, 1, 2, 3, 4];
+
+        ball2.x = ball.x;
+        ball2.y = ball.y;
+        ball2.clr = ball.clr;
+
+    //shorthand variables for ball/player x/y positions
+        var xB = ball.x;
+        var yB = ball.y;
+        var xP = [0, 1, 2, 3, 4];
+        var yP = [0, 1, 2, 3, 4];
+
+        Ball.prototype.activeSquare = function () {
+            if (bounceCount === 1) {
+            
+                if ((bounceX > squareCenterX && bounceX < squareCenterX+squareSize+ball.size/2) && (bounceY < squareCenterY && bounceY > squareCenterY-squareSize-ball.size/2)) {
+                    activeSquare = 1;
+                    noFill();
+                    if(player[pNum].square === activeSquare){
+                        stroke(player[pNum].clr,155);
+                    }
+                    strokeWeight(6);
+                    rect(square[1].activeX, square[1].activeY, squareSize*0.98, squareSize*0.98);
+                    noStroke();
+                }
+                
+                if ((bounceX < squareCenterX && bounceX > squareCenterX-squareSize-ball.size/2) && (bounceY < squareCenterY && bounceY > squareCenterY-squareSize-ball.size/2)) {
+                    activeSquare = 2;
+                    noFill();
+                    if(player[pNum].square === activeSquare){
+                        stroke(player[pNum].clr,155);
+                    }
+                    strokeWeight(6);
+                    rect(square[2].activeX, square[2].activeY, squareSize*0.98, squareSize*0.98);
+                    noStroke();
+                }
+                
+                if ((bounceX < squareCenterX && bounceX > squareCenterX-squareSize-ball.size/2) && (bounceY > squareCenterY && bounceY < squareCenterY+squareSize+ball.size/2)) {
+                    activeSquare = 3;
+                    noFill();
+                    if(player[pNum].square === activeSquare){
+                        stroke(player[pNum].clr,155);
+                    }
+                    strokeWeight(6);
+                    rect(square[3].activeX, square[3].activeY, squareSize*0.98, squareSize*0.98);
+                    noStroke();
+                }
+                
+                if ((bounceX > squareCenterX && bounceX < squareCenterX+squareSize+ball.size/2) && (bounceY > squareCenterY && bounceY < squareCenterY+squareSize+ball.size/2)) {
+                    activeSquare = 4;
+                    noFill();
+                    if(player[pNum].square === activeSquare){
+                        stroke(player[pNum].clr,155);
+                    }
+                    strokeWeight(6);
+                    rect(square[4].activeX, square[4].activeY, squareSize*0.98, squareSize*0.98);
+                    noStroke();
+                }
+                
+                //checks to make sure ball landed inside the arena CHANGE THIS WHEN YOU MAKE THE ARENA BIGGER THAN THE CANVAS/KHAN ACADEMY SCREEN
+                if (bounceX < squareCenterX-squareSize-ball.size/2 || bounceX > squareCenterX+squareSize+ball.size/2 || bounceY < squareCenterY-squareSize-ball.size/2 || bounceY > squareCenterY+squareSize+ball.size/2){
+                    activeSquare = 0;
+                }
+            }
+        };
+
+
+    //detects which player hits the ball
+    //add other players when you add more functionality to other players
+        Ball.prototype.hitByPlayer = function () {
+            if (tdbpab[pNum]<= ball.size/2){
+                this.hitBy = pNum;
+
+                if(abs(ball.xSpeed) + abs(player[pNum].xSpeed) > 7 || abs(ball.ySpeed) + abs(player[pNum].ySpeed) > 7){
+                    ballHitHard.play();
+                }
+                
+                if(abs(ball.xSpeed) + abs(player[pNum].xSpeed) > 4 && abs(ball.xSpeed) + abs(player[pNum].ySpeed) < 7){
+                    ballHitMedium.play();
+                }
+
+                if(abs(ball.xSpeed) + abs(player[pNum].xSpeed) < 4 && abs(ball.xSpeed) + abs(player[pNum].ySpeed) < 4){
+                    ballHitSoft.play();
+                }
+            }
+        };
+
+    //detects if the player hits the ball to early or late. Players can only hit the ball after bounce 1 and the ball is active in their square.
+        Ball.prototype.bounceConditionCheckA = function () {
+            //allows the serving player to serve without getting out
+            if (activeSquare === 0 && bounceCount === 0 && this.hitBy === 0) {
+                //if the player is not the king and hits the ball before it is served, they're out
+                if (player[pNum].square !== 1){
+                    player[pNum].lose = 1;
+                    loseMessage = player[pNum].name + " hit the ball before it was served.";
+                }
+                
+            }
+            
+            //checks to see if the ball has bounced after serve
+            else if (activeSquare === 0 && bounceCount === 0 && this.hitBy !== 0){
+                player[pNum].lose = 1;
+                loseMessage = player[pNum].name + " hit the ball before the serve landed.";
+            }
+            
+            //checks to see if the ball has bounced after a hit
+            else if (bounceCount !== 1 && activeSquare !== player[pNum].square){
+                player[pNum].lose = 1;
+                loseMessage = player[pNum].name + " hit the ball before it bounced.";
+            }
+
+            //checks to see if the player hits the ball twice in a row
+            else if (bounceCount !== 1 && activeSquare === player[pNum].square){
+                player[pNum].lose = 1;
+                loseMessage = player[pNum].name + " hit the ball twice in a row.";
+            }
+            
+            //checks to see if the ball is active in player's square
+            else if (activeSquare !== player[pNum].square){
+                player[pNum].lose = 1;
+                loseMessage = player[pNum].name + " hit the ball before it bounced in their square.";
+            }
+            
+
+        };
+
+        Ball.prototype.bounceConditionCheckP = function () {
+            ball.activeSquare();
+            //checks to see if the ball has bounced twice before being hit by player in active square
+            if (bounceCount > 1 && activeSquare === player[pNum].square){
+                player[pNum].lose = 1;
+                loseMessage = player[pNum].name + " did not return the ball.";
+            }
+            
+            if (bounceCount === 1 && activeSquare === player[this.hitBy].square){
+                player[this.hitBy].lose = 1;
+                loseMessage = player[pNum].name + " hit the ball into their own square.";
+            }
+
+            if (bounceCount === 1 && activeSquare === 0 ){
+                player[this.hitBy].lose = 1;
+                loseMessage = player[pNum].name + " hit the ball out of bounds.";
+            }
+        };
+
+
+    /////////////////////////////////// INDICATORS START ////////////////////////////////////////
+
+
+
+    ////////////////////////////////// X indicators START ///////////////////////////////////////
+    //resolves the ballxSpeed = playerxSpeed bug
+        var xBPs = [0, 1, 2, 3, 4];
+
+    //resolves the ballxPosition = playerxPosition bug
+        var xBPp = [0, 1, 2, 3, 4];
+
+    //indicates if both, either, or neither the ball and player are moving in positive and/or negative direction
+        var xBPind = [0, 1, 2, 3, 4];
+
+    //indicates if the player is moving or not
+        var xPind = [0, 1, 2, 3, 4];
+
+    //based off if the ball is moving or not (in the x direction)
+        var xDind1 = [0, 1, 2, 3, 4];
+
+    //based on position of the x position of player and ball
+        var xDind2 = [0, 1, 2, 3, 4];
+
+    //dictating formula that tells whether or not to run the formula
+        var xDind = [0, 1, 2, 3, 4];
+
+    //////////////////------------------- X indicators END  -------------------//////////////////
+
+    //////////////////////////////////// Y indicators START /////////////////////////////////////
+    //resolves the ballySpeed = playerySpeed bug
+        var yBPs = [0, 1, 2, 3, 4];
+
+    //resolves the ballyPosition = playeryPosition bug
+        var yBPp = [0, 1, 2, 3, 4];
+
+    //indicates if both, either, or neither the ball and player are moving in positive and/or negative direction
+        var yBPind = [0, 1, 2, 3, 4];
+
+    //indicates if the player is moving or not
+        var yPind = [0, 1, 2, 3, 4];
+
+    //based off if the ball is moving or not (in the y direction)
+        var yDind1 = [0, 1, 2, 3, 4];
+
+    //based on position of the y position of player and ball
+        var yDind2 = [0, 1, 2, 3, 4];
+
+    //dictating formula that tells whether or not to run the formula
+        var yDind = [0, 1, 2, 3, 4];
+
+    /////////////////------------------- y indicators END  -------------------///////////////////
+
+    //////////////////////////////////// inc indicators START ///////////////////////////////////
+        var incInd1 = [0, 1, 2, 3, 4];
+        var incInd2 = [0, 1, 2, 3, 4];
+
+        var incInd3 = [0, 1, 2, 3, 4];
+        var incInd4 = [0, 1, 2, 3, 4];
+
+        var inc = [0, 1, 2, 3, 4];
+        var cA = [0, 1, 2, 3, 4];
+
+    //////////////------------------- inc indicators END ----------------////////////////////////
+
+
+
+    ////////////////------------------- INDICATORS END -------------------///////////////////////
+
+
+    //FORMULAS
+    //Ball Speed
+        var ballxSpeed = [0, 1, 2, 3, 4];
+        var ballySpeed = [0, 1, 2, 3, 4];
+
+    //checks if player1 and ball collide
+        Ball.prototype.checkForPlayerCollision = function() {
+            if (tdbpab[pNum] <= 25) {
+                //makes the player jump back to keep them from hitting the ball multiple times
+                player[pNum].x -= ballxSpeed[pNum]*5;
+                player[pNum].y -= ballySpeed[pNum]*5;
+                player[pNum].xSpeed = 0;
+                player[pNum].ySpeed = 0;
+
+                this.xSpeed = ballxSpeed[pNum];
+                this.ySpeed = ballySpeed[pNum];
+                
+                ball.bounceConditionCheckA();
+                ball.hitByPlayer();
+                
+                
+                bounceCount = 0;
+            }
+        };
+
+        ball.bounceAnimation ();
+
+    //Z coordinate for ball
+        ball.z = ball2.size-ball.size;
+
+
+    //shadow variables
+        var lightX = 200;
+        var lightY = centerY;
+        var lightZ = 200;
+
+    //x, y, ground, z, and total distance between ball and light
+        var xdbbal = ball.x-lightX;
+        var ydbbal = ball.y - lightY;
+
+        var gdbbal = sqrt((xdbbal*xdbbal + ydbbal*ydbbal));
+        var zdbbal = lightZ-ball.z;
+
+        var tdbbal = sqrt(gdbbal*gdbbal+zdbbal*zdbbal);
+
+    //shadow distance from light
+        var gdblas = (gdbbal/zdbbal)*lightZ;
+        var xdblas = gdblas*(xdbbal/gdbbal);
+        var ydblas = gdblas*(ydbbal/gdbbal);
+
+        var tdblas = (tdbbal/zdbbal)*lightZ;
+
+
+
+    //shadow size ratio
+    //var shadowSR = (
+        var blk = color(0, 0, 0, transparency);
+        transparency = 100 - ball.z*1.25;
+        ballShadow.clr = blk;
+
+        ballShadow.size = (tdblas/ tdbbal)*ball.size;
+        ballShadow.x = lightX + xdblas;
+        ballShadow.y = lightY + ydblas;
+
+    /*
+    //shadow debugging
+    text(ballShadow.x, 100, 100);
+    text(ballShadow.y, 100, 115);
+    text(ballShadow.size, 100, 130);
+
+    text (t, 300, 80);
+    text(ball2.size, 300, 100);
+
+    println("lightX: "+lightX);
+    println("lightY: "+lightY);
+    println("x distance between ball and light: " +xdbbal);
+    println("y distance between ball and light: " +ydbbal);
+
+    println("g distance between ball and light: " + gdbbal.toFixed(2));
+    println("z distance between ball and light: " + zdbbal.toFixed(2));
+    println("T distance between ball and light: " + tdbbal.toFixed(2));
+
+    println(ballShadow.size);
+    println(transparency);*/
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////                                     BIG FOR LOOP
+    //applies the function calls to each player individually
+        for (var pNum = 1; pNum < player.length; pNum += 1){
+            player[pNum].momentum();
+        //ballspeed is changed by 1 acceleration rate if the player is holding against the wall when ball collides (bug/glitch?)
+            player[pNum].CheckForWallCollision();
+            
+            
+            xdbpab[pNum] = (player[pNum].x-ball.x) - ((player[pNum].x-ball.x)/((player[pNum].size+ball.size)/2))*(player[pNum].size/2);
+            ydbpab[pNum] = (player[pNum].y-ball.y) - ((player[pNum].y-ball.y)/((player[pNum].size+ball.size)/2))*(player[pNum].size/2);
+            tdbpab[pNum] = sqrt((xdbpab[pNum]*xdbpab[pNum]) + (ydbpab[pNum] * ydbpab[pNum]));
+            
+            //shorthand variables for ball/player x/y positions
+            xP[pNum] = player[pNum].x;
+            yP[pNum] = player[pNum].y;
+            
+            
+            
+    /////////////////////////////////// INDICATORS START ////////////////////////////////////////
+
+
+
+    ////////////////////////////////// X indicators START ///////////////////////////////////////
+    //resolves the ballxSpeed = playerxSpeed bug
+            xBPs[pNum] = (round((0.00001)/((player[pNum].xSpeed+0.00001)-ball.xSpeed))*-1)+1;
+            
+    //resolves the ballxPosition = playerxPosition bug
+            xBPp[pNum]= round(((0.00001)/((xP[pNum]+0.00001)-xB)));
+            
+    //indicates if both, either, or neither the ball and player are moving in positive and/or negative direction
+            xBPind[pNum] = (abs(player[pNum].xSpeed+0.00001)/(player[pNum].xSpeed+0.00001) + abs(ball.xSpeed+0.00001)/(ball.xSpeed+0.00001)) /2;
+            
+    //indicates if the player is moving or not
+            xPind[pNum] = round((player[pNum].xSpeed * 1)/(player[pNum].xSpeed+0.00001));
+            
+    //based off if the ball is moving or not (in the x direction)
+            xDind1[pNum] = abs((abs(player[pNum].xSpeed+0.00001)-abs(ball.xSpeed+0.00001)*xBPs[pNum]))/(abs(player[pNum].xSpeed+0.00001)-abs(ball.xSpeed+0.00001)*xBPs[pNum]);
+            
+    //based on position of the x position of player and ball
+            xDind2[pNum] = abs(xB-xP[pNum])/(xB-xP[pNum]+xBPp[pNum])*abs(xB-xP[pNum])/(xB-xP[pNum]+xBPp[pNum]);
+            
+    //dictating formula that tells whether or not to run the formula
+            xDind[pNum] = (xDind1[pNum]+xDind2[pNum])/2;
+            // 0 = no
+            // 1 = yes
+            
+    //////////////////------------------- X indicators END  -------------------//////////////////
+
+    //////////////////////////////////// Y indicators START /////////////////////////////////////
+    //resolves the ballySpeed = playerySpeed bug
+            yBPs[pNum] = (round((0.00001)/((player[pNum].ySpeed+0.00001)-ball.ySpeed))*-1)+1;
+            
+    //resolves the ballyPosition = playeryPosition bug
+            yBPp[pNum] = round(((0.00001)/((yP[pNum]+0.00001)-yB)));
+            
+    //indicates if both, either, or neither the ball and player are moving in positive and/or negative direction
+            yBPind[pNum] = (abs(player[pNum].ySpeed+0.00001)/(player[pNum].ySpeed+0.00001) + abs(ball.ySpeed+0.00001)/(ball.ySpeed+0.00001)) /2;
+            
+    //indicates if the player is moving or not
+            yPind[pNum] = round((player[pNum].ySpeed * 1)/(player[pNum].ySpeed+0.00001));
+
+    //based off if the ball is moving or not (in the y direction)
+            yDind1[pNum] = abs((abs(player[pNum].ySpeed+0.00001)-abs(ball.ySpeed+0.00001)*yBPs[pNum]))/(abs(player[pNum].ySpeed+0.00001)-abs(ball.ySpeed+0.00001)*yBPs[pNum]);
+    //positive = player is moving faster than ball
+    //negative = ball is moving faster than player
+
+    //based on position of the y position of player and ball
+            yDind2[pNum] = abs(yB-yP[pNum])/(yB-yP[pNum]+yBPp[pNum])*abs(yB-yP[pNum])/(yB-yP[pNum]+yBPp[pNum]);
+    //positive = ball to the right of player
+    //negative = ball to the left of player
+
+    //dictating formula that tells whether or not to run the formula
+            yDind[pNum] = (yDind1[pNum]+yDind2[pNum])/2;
+    // 0 = no
+    // 1 = yes
+
+    /////////////////------------------- y indicators END  -------------------///////////////////
+
+    //////////////////////////////////// inc indicators START ///////////////////////////////////
+            
+
+            incInd1[pNum] = abs((yB-yP[pNum]+yBPp[pNum]))/(yB-yP[pNum]+yBPp[pNum]);
+            incInd2[pNum] = abs((yP[pNum]-yB-yBPp[pNum]))/(yP[pNum]-yB-yBPp[pNum]);
+            
+            incInd3[pNum] = (incInd2[pNum] - abs(incInd1[pNum]))/-2;
+            incInd4[pNum] = (incInd1[pNum] - abs(incInd2[pNum]))/-2;
+            
+            inc[pNum] = acos(xdbpab[pNum] / tdbpab[pNum])*incInd4[pNum] + (2*PI-acos(xdbpab[pNum] / tdbpab[pNum]))*incInd3[pNum];
+            cA[pNum] = inc[pNum]-(3/2)*PI; //(complimentary angle)
+            
+    //////////////------------------- inc indicators END ----------------////////////////////////
+
+
+
+    ////////////////------------------- INDICATORS END -------------------///////////////////////
+
+
+
+    //FORMULAS
+    //Ball Speed
+            ballxSpeed[pNum] = abs(ball.xSpeed*cos(inc[pNum])*cos(inc[pNum])) * xBPind[pNum] * xPind[pNum] * xDind[pNum] + player[pNum].xSpeed * cos(inc[pNum]) * cos(inc[pNum])  +         ( (ball.xSpeed * cos(cA[pNum]) * cos(cA[pNum])) - (ball.xSpeed * cos(inc[pNum]) * cos(inc[pNum])) )  +                                                                                                                                                                         ( player[pNum].ySpeed * sin(inc[pNum]) * cos(inc[pNum]) -                                                   ball.ySpeed * sin(inc[pNum]) * cos(inc[pNum]) );
+            
+            ballySpeed[pNum] = abs(ball.ySpeed*sin(inc[pNum])*sin(inc[pNum])) * yBPind[pNum] * yPind[pNum] *yDind[pNum] + player[pNum].ySpeed * sin(inc[pNum]) * sin(inc[pNum])  +          (  (ball.ySpeed * sin(cA[pNum]) * sin(cA[pNum])) - (ball.ySpeed * sin(inc[pNum]) * sin(inc[pNum])) ) +                                                                                                                                                                          ( player[pNum].xSpeed * sin(inc[pNum]) * cos(inc[pNum]) -                                   ball.xSpeed * sin(inc[pNum]) * cos(inc[pNum]) );     
+            
+
+            ball.checkForPlayerCollision();
+            ball.bounceConditionCheckP();
+            loseCondition(pNum);
+
+            if (displayLoseMessage === true && activeSquare === 0){
+                pushMatrix();
+                textSize(50);
+                textAlign(CENTER);
+                fill(wht);
+                text(loseMessage, centerX, centerY - squareSize*1.2)
+                popMatrix();
+            }
+
+            
+            victory(pNum);
+            
+    }
+        
+        //moved player[pNum] draw outside the big for loop to draw it over the active square lines
+        for (var pNum = 1; pNum < player.length; pNum += 1){
+            player[pNum].draw();
+        }
+        
+        
+        ballShadow.draw();
+        ballOutline.draw();
+        ball.draw();
+        ball2.draw();
+        
+        ball.momentum();
+        ball.checkForWallCollision();
+
+
+
+    textAlign(CENTER);
+    textSize(20);
+    fill(player[ball.hitBy].clr);
+    if(ball.hitBy !== 0){
+        text('Hit by Player ' + ball.hitBy, squareCenterX, 100);
+    }
+
+
+
+    //Leaderboard
+    textAlign(CENTER);
+    for (var i = 0; i < player.length; i++){
+        if (player[i].square === 1){
+            fill(player[i].clr);
+            text('King Square: '+ player[i].name + " (" + player[i].points + " points)", 200, 150);
+        }
+
+        if (player[i].square === 2){
+            fill(player[i].clr);
+            text('Square 2: ' + player[i].name + " (" + player[i].points + " points)", 200, 100+50*player[i].square);
+        }
+
+        if (player[i].square === 3){
+            fill(player[i].clr);
+            text('Square 3: ' + player[i].name + " (" + player[i].points + " points)", 200, 100+50*player[i].square);
+        }
+
+        if (player[i].square === 4){
+            fill(player[i].clr);
+            text('Square 4: ' + player[i].name + " (" + player[i].points + " points)", 200, 100+50*player[i].square);
+        }
+
+        if (player[i].square === 5){
+            fill(player[i].clr);
+            text("Up next", squareCenterX - squareSize*1.9, squareSize*0.39+player[i].square*40);
+            rect(squareCenterX - squareSize*1.9, squareSize*0.4 + player[i].square*40, 80, 2);
+        }
+
+        if (player[i].square > 4){
+            fill(player[i].clr);
+            text(player[i].name + " (" + player[i].points + " points)", squareCenterX - squareSize*1.9, squareSize/2+player[i].square*40);    
+        }
+    }
+
+    // trajectory debugging
+    /*
+    println(player[1].xSpeed);
+    println(player[1].ySpeed);
+    println(xdbpab);
+    println(ydbpab);
+    println(tdbpab);
+    println(ball.xSpeed);
+    println(ball.ySpeed);
+    println(inc[1]);*/
+
+
+    //lose / lose condition debugging 
+    /*
+    text("losing square: " + losingSquare, 500, 440);
+        text(player.length, 500, 470);
+        text(player[1].lose, 500, 500);
+        text(player[2].lose, 500, 530);
+        text(player[3].lose, 500, 560);
+        text(player[4].lose, 500, 590);
+
+        text(player[1].square, 550, 500);
+        text(player[2].square, 550, 530);
+        text(player[3].square, 550, 560);
+        text(player[4].square, 550, 590);
+
+
+    //function debugging
+    /*
+    textAlign(LEFT);
+    fill(255, 255, 255);
+    text ("Ball Z coordinate: " + ball.z, squareCenterX+squareSize*1.1, 20);
+    text ("Bounce counter: " + bounceCount, squareCenterX+squareSize*1.1, 50);
+    text ("Hit by Player " + ball.hitBy, squareCenterX+squareSize*1.1, 60);
+
+    text ("Bounced at " + bounceX, squareCenterX+squareSize*1.1, 100);
+    text ("Bounced at " + bounceY, squareCenterX+squareSize*1.1, 110);
+    text ("Active Square: " + activeSquare, squareCenterX+squareSize*1.1, 70);
+
+    text("player1 square: " + player[1].square, squareCenterX+squareSize*1.1, 300);
+    text("player2 square: " + player[2].square, squareCenterX+squareSize*1.1, 310);
+    text("player3 square: " + player[3].square, squareCenterX+squareSize*1.1, 320);
+    text("player4 square: " + player[4].square, squareCenterX+squareSize*1.1, 330);
+
+    text("player1 lose: " + player[1].lose, squareCenterX+squareSize*1.1, 400);
+    text("player2 lose: " + player[2].lose, squareCenterX+squareSize*1.1, 410);
+    text("player3 lose: " + player[3].lose, squareCenterX+squareSize*1.1, 420);
+    text("player4 lose: " + player[4].lose, squareCenterX+squareSize*1.1, 430);*/
+
+    //reset function "1, 2, 3, and spacebar" to reset the game
+    reset();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //uncomment this after losecondition is rewritten loseCondition v1.0... This can be placed under lose condition 2 if it turns out to be buggy
+    /*Player.prototype.loseCondition = function () {
+        if (player[pNum].lose === 1){
+                if (player[1].lose === 0){
+                    if (player[pNum].square < player[1].square){
+                        player[1].square -= 1;
+                    }
+                    player[1].x = square[player[1].square].playerX;
+                    player[1].y = square[player[1].square].playerY;
+                }
+                if (player[2].lose === 0){
+                    if (player[pNum].square < player[2].square){
+                        player[2].square -= 1;
+                    }
+                    player[2].x = square[player[2].square].playerX;
+                    player[2].y = square[player[2].square].playerY;
+                }
+                if (player[3].lose === 0){
+                    if (player[pNum].square < player[3].square){
+                        player[3].square -= 1;
+                    }
+                    player[3].x = square[player[3].square].playerX;
+                    player[3].y = square[player[3].square].playerY;
+                }
+                if (player[4].lose === 0){
+                    if (player[pNum].square < player[4].square){
+                        player[4].square -= 1;
+                    }
+                    player[4].x = square[player[4].square].playerX;
+                    player[4].y = square[player[4].square].playerY;
+                }
+                
+                
+            player[pNum].square = 4;
+            player[pNum].x = square[this.square].playerX;
+            player[pNum].y = square[this.square].playerY;
+            player[pNum].lose = 0;
+            
+            for(var i = 0; i < player.length; i++){
+                player[i].sprintEnergy = 100;
+            }
+
+            ball.x = squareCenterX+squareSize/2;
+            ball.y = squareCenterY-squareSize/2;
+            ball.xSpeed = 0;
+            ball.ySpeed = 0;
+            
+            activeSquare = 0;
+            bounceCount = 0;
+            ball.hitBy = 0;
+
+            displayLoseMessage = true;
+        }
+        
+    };
+    */
+
+
+    }
+};
+
+
+
+
+    }};
+
+    // Get the canvas that Processing-js will use
+    var canvas = document.getElementById("mycanvas"); 
+    // Pass the function sketchProc (defined in myCode.js) to Processing's constructor.
+    var processingInstance = new Processing(canvas, sketchProc); 
+ </script>
+
+</html>
+
+
+
+
