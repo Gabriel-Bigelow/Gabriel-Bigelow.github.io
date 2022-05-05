@@ -63,7 +63,6 @@ projectsContainer.addEventListener('click', function (event){
         }
         const hideProjectsExit = () => {
             projectsExit.style.opacity = "0%";
-            projectsNav.scrollIntoView();
             setTimeout(function (){
                 projectsExit.style.display="none";
             }, 1000);
@@ -75,6 +74,9 @@ projectsContainer.addEventListener('click', function (event){
                 showFortuneTeller();
                 showQuoteAPI();
                 hideProjectsExit();
+                if (projectsExit.contains(event.target)){
+                    projectsNav.scrollIntoView();
+                }
             } if (clickedFortuneTeller || clickedFourSquare || clickedQuoteAPI){
                 showProjectsExit();
             }
